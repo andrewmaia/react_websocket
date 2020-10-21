@@ -1,26 +1,45 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import webSocket from  './webSocket';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default class App extends React.Component{
+  constructor(props){
+      super(props);
+      this.state={
+        mensagem:'',
+      };
+
+      this.enviarMensagem= this.enviarMensagem.bind(this);
+      this.handleChange= this.handleChange.bind(this);      
+  }
+
+  //Obs: Tem que abrir outra pagina para ver a msg recebida
+  async componentDidMount(){
+    webSocket.on('mensagemRecebida', (msg)=>{
+        this.setState({mensagemRecebida: msg});
+    });
 }
 
-export default App;
+  handleChange (e){
+    this.setState({mensagem:e.target.value});
+  }
+
+  enviarMensagem(){
+    webSocket.emit('enviouMensagem',  this.state.mensagem);
+  }
+
+    render(){
+        return(
+            <div>
+                <label>Mensagem:
+                    <input type="text" 
+                        onChange={this.handleChange}
+                        value={this.state.mensagem} />
+                </label>
+                <button type="button" onClick={this.enviarMensagem}>Enviar</button>
+                <div>Mensagem recebida:{this.state.mensagemRecebida}</div>
+            </div>
+        );
+    }
+}
+
